@@ -16,7 +16,7 @@ Testd on:    Raspberry Pi OS and wsl2
 #include <unistd.h>
 #include <stdio.h>
 
-#include "Artic42.h"
+#include "lib/Artic42.h"
 #include "Hermes.h"
 
 /****************************************
@@ -45,8 +45,8 @@ Testd on:    Raspberry Pi OS and wsl2
 
 void createFile (string path)
 {
-    string command = "touch ";
-    strcat (command, path);
+    char command [1024] = "touch ";
+    strncat (command, path, sizeof(command));
     system (command);
 }
 
@@ -56,8 +56,8 @@ void createFile (string path)
 
 void deleteFile (string path)
 {
-    string command = "rm -f ";
-    strcat (command, path);
+    char command [1024]= "rm -f ";
+    strncat (command, path, sizeof(command));
     system (command);
 }
 
@@ -76,15 +76,35 @@ bool file2bool (string path)
 void int2file (string path, int value)
 {
     FILE *filePtr = NULL;
-    fopen (path, "wb");
-    fwrite (&value, sizeof (value), 1, filePtr);
+    filePtr = fopen (path, "w");
+    fprintf (filePtr, "%d", value);
+    fclose (filePtr);
 }
 
 int file2int (string path)
 {
     int result;
     FILE *filePtr = NULL;
-    fopen (path, "rb");
-    fwrite (&result, sizeof(result), 1, filePtr);
+    filePtr = fopen (path, "r");
+    fscanf (filePtr, "%d", &result);
+    fclose (filePtr);
+    return result;
+}
+
+void float2file (string path, float value)
+{
+    FILE *filePtr = NULL;
+    filePtr = fopen (path, "w");
+    fprintf (filePtr, "%f", value);
+    fclose (filePtr);
+}
+
+float file2float (string path)
+{
+    float result;
+    FILE *filePtr = NULL;
+    filePtr = fopen (path, "r");
+    fscanf (filePtr, "%f", &result);
+    fclose (filePtr);
     return result;
 }
